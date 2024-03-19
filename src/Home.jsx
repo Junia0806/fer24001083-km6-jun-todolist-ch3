@@ -14,7 +14,7 @@ export default function Home() {
         </p>
       </div>
       <Link
-        to={`/ritual-app`}
+        to={`/ritual-app`} //url yang dituju
         className="bg-gray-500 hover:bg-gray-800 text-white font-semiboldbold py-2 px-4 rounded bg-opacity-50"
       >
         Klik Disini

@@ -3,27 +3,29 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
 function RamadhanListApp() {
+  //menginisialisasi beberapa variabel state
   const [items, setItems] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
-  const [editedName, setEditedName] = useState(""); //nama kegiatan
+  const [editedName, setEditedName] = useState(""); //nama ritual
   const [editedTime, setEditedTime] = useState(""); //waktu
   const [searchTerm, setSearchTerm] = useState(""); //input search real-time
   const [currentWaktu, setCurrentWaktu] = useState(new Date()); //waktu saat ini (real-time)
   const [filter, setFilter] = useState("All"); //untuk button search
 
-  //Untuk waktu real-time
+  //UseEffect untuk waktu real-time
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setCurrentWaktu(new Date());
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, []);
+      setCurrentWaktu(new Date()); // Memperbarui nilai dari state currentWaktu dengan waktu new Date()--> waktu saat ini
+    }, 1000); // akan diperbarui setiap 1000 milidetik (1 detik)
+    return () => clearInterval(intervalId); // Membersihkan interval yang telah dibuat sebelumnya agar tidak ada kebocoran memori atau efek samping yang tidak diinginkan
+  }, []); // Efek samping hanya dijalankan sekali setelah komponen ditampilkan
 
-  // Fungsi untuk menambahkan item baru
+  // Fungsi untuk menambahkan item baru (addItem)
   const addItem = (newItem) => {
-    // Memeriksa apakah nama dan waktu item kosong
+    //menerima parameter newItem
+    // Memeriksa apakah nama dan waktu item sebuah string kosong (spasi dihapus)
     if (newItem.name.trim() === "" && newItem.time.trim() === "") {
-      // alert("Tidak ada data apapun yang akan dimasukkan!");
+      // munculkan sweet alert
       Swal.fire({
         icon: "info",
         title: "Lohh...",
@@ -33,7 +35,6 @@ function RamadhanListApp() {
     }
     // Memeriksa apakah nama item kosong
     if (newItem.name.trim() === "") {
-      // alert("Nama ritual tidak boleh kosong!");
       Swal.fire({
         icon: "info",
         title: "Info sob..",
@@ -43,7 +44,6 @@ function RamadhanListApp() {
     }
     // Memeriksa apakah waktu item kosong
     if (newItem.time.trim() === "") {
-      // alert("Waktu tidak boleh kosong!");
       Swal.fire({
         icon: "info",
         title: "Info sob..",
@@ -51,33 +51,29 @@ function RamadhanListApp() {
       });
       return;
     }
-
     // Memeriksa apakah waktu sudah ada pada list
-    const itemExists = items.some(
-      // (item) => item.time.trim().toLowerCase() === newItem.time.trim().toLowerCase()
+    const itemExists = items.some(// Memeriksa apakah ada elemen dalam array items yang memiliki waktu = waktu newItem
       (item) => item.time === newItem.time
     );
     if (itemExists) {
-      //alert("Di waktu itu sudah ada ritualnya sob! Coba pilih waktu lainnya!");
+      // Jika itemExists bernilai true, tampilkan sweet alert
       Swal.fire({
         icon: "error",
         title: "Opps...",
         text: "Waktu sudah ada ritualnya sob. Coba cari waktu lainnya!",
       });
-      return;
+      return; 
     }
-
     // Menambahkan item baru ke dalam array items
     setItems([...items, newItem]);
-
     // Mengurutkan items berdasarkan waktu setelah menambahkan item baru
-    setItems((items) =>
-      items.sort((a, b) => {
-        const timeA = a.time;
-        const timeB = b.time;
-        if (timeA < timeB) return -1; //-1 berarti a harus ditempatkan sebelum b dalam urutan
-        if (timeA > timeB) return 1; //1 berarti a harus ditempatkan setelah b dalam uruttan
-        return 0;
+    setItems((items) => 
+      items.sort((a, b) => { //mengurutkan element array berdasarkan params pembanding a dan b
+        const timeA = a.time; //variabel timeA menyimpan nilai propertie time yang mau diinput
+        const timeB = b.time; //variabel timeA menyimpan nilai propertie time yang sudah ada
+        if (timeA < timeB) return -1; //-1 berarti a ditempatkan sebelum b dalam urutan
+        if (timeA > timeB) return 1; //1 berarti a ditempatkan setelah b dalam uruttan
+        return 0; //kedua objek yang sedang dibandingkan dianggap sama
       })
     );
   };
@@ -87,13 +83,11 @@ function RamadhanListApp() {
     const updatedItems = [...items];
     // Memeriksa apakah ada item lain dengan waktu yang sama seperti updatedItem
     const editedTimeExists = items.some(
-      (item, i) =>
-        i !== index && // Tidak memeriksa item yang sedang diedit
+      (item) =>
         item.time === updatedItem.time
     );
-    // Jika ada item lain dengan waktu yang sama, munculkan peringatan dan hentikan fungsi
+    // jika true tampilkan alert
     if (editedTimeExists) {
-      // alert("Waktu sudah ada ritualnya sob. Coba cari waktu lainnya!");
       Swal.fire({
         icon: "error",
         title: "Opps...",
@@ -101,12 +95,11 @@ function RamadhanListApp() {
       });
       return;
     }
-    // Memperbarui item pada indeks yang diberikan dengan nilai updatedItem
-    updatedItems[index] = updatedItem;
-    // Memperbarui state items dengan nilai yang sudah diperbarui
-    setItems(updatedItems);
+    updatedItems[index] = updatedItem; // Memperbarui item pada indeks yang diberikan dengan nilai updatedItem
+    setItems(updatedItems);   // Memperbarui state items dengan nilai yang sudah diperbarui
   };
 
+  // Fungsi untuk menghapus item pada indeks tertentu dalam array items
   const removeItem = (index) => {
     Swal.fire({
       title: "Yakin bro?",
@@ -116,16 +109,17 @@ function RamadhanListApp() {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then((result) => { //tindakan yang akan dilakukan setelah menerima result
       if (result.isConfirmed) {
-        setItems(items.filter((item, i) => i !== index));
+        setItems(items.filter((item, i) => i !== index)); //menampilkan array yang indeksnya tidak sama dengan index (indeks yang dipilih/dihapus)
         Swal.fire("Yeay!", "Ritual berhasil dihapus", "success");
       }
     });
   };
 
+  // Fungsi untuk menghapus semua item dalam array items
   const removeAllItems = () => {
-    if (items.length === 0) {
+    if (items.length === 0) {//kalau penjang items 0 maka tampilkan alert
       Swal.fire({
         icon: "warning",
         title: "Upps...",
@@ -142,15 +136,16 @@ function RamadhanListApp() {
         confirmButtonText: "Yes, delete all!",
       }).then((result) => {
         if (result.isConfirmed) {
-          setItems([]);
+          setItems([]); //maka tampilkan array kosong
           Swal.fire("Yeay!", "Semua ritual berhasil dihapus", "success");
         }
       });
     }
   };
 
+  // Fungsi untuk menghapus semua item completed dalam array items
   const removeCompletedItems = () => {
-    const isAnyComplete = items.some((item) => item.completed);
+    const isAnyComplete = items.some((item) => item.completed); // apakah ada setidaknya satu item yang telah selesai dalam array items.
     if (!isAnyComplete) {
       Swal.fire({
         icon: "warning",
@@ -168,7 +163,7 @@ function RamadhanListApp() {
         confirmButtonText: "Yes, delete it!",
       }).then((result) => {
         if (result.isConfirmed) {
-          setItems(items.filter((item) => !item.completed));
+          setItems(items.filter((item) => !item.completed)); //membuat array baru berisi todo belum selesai
           Swal.fire(
             "Yeay!",
             "Semua  ritual yang done (selesai) berhasil dihapus",
@@ -179,16 +174,19 @@ function RamadhanListApp() {
     }
   };
 
+  //menentukan nilai checkbox
   const handleCheckboxChange = (index) => {
     const updatedItems = [...items];
-    updatedItems[index].completed = !updatedItems[index].completed;
+    updatedItems[index].completed = !updatedItems[index].completed; //menetapkan nilai kebalikan
     setItems(updatedItems);
   };
 
+  //melakukan pencarian(search) sesuai inputan value
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  //memfilter data sesuai dengan nilai filter yang baru.
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
   };
@@ -217,17 +215,17 @@ function RamadhanListApp() {
             <h1 className="text-3xl font-bold mb-4"> Tambahkan Ritual</h1>
             <div className="">
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const newItemName = e.target.itemName.value;
+                onSubmit={(e) => { // Menyimpan data ke variabel Items
+                  e.preventDefault(); // Mencegah terjadinya refresh saat data ditambahkan
+                  const newItemName = e.target.itemName.value; //Mendapatkan nilai nama dari input
                   const newItemTime = e.target.itemTime.value; // Mendapatkan nilai waktu dari input
 
                   addItem({
                     id: Date.now(),
-                    name: newItemName,
+                    name: newItemName, // Menambahkan nama ke item
                     time: newItemTime, // Menambahkan waktu ke item
                   });
-                  e.target.reset();
+                  e.target.reset(); // Mengembalikan nilai dari semua elemen input dalam form ke nilai awal 
                 }}
               >
                 <label htmlFor="itemTime" className="mb-1 font-bold text-lg">
@@ -244,7 +242,7 @@ function RamadhanListApp() {
                 </label>
                 <input
                   type="text"
-                  name="itemName"
+                  name="itemName" // Menambah input nama
                   placeholder="Masukkan Ritual Ramadhanmu"
                   className="mr-2 border rounded-md px-2 py-1 flex-grow md:flex-grow-0 w-full md:w-full"
                 />
@@ -311,7 +309,7 @@ function RamadhanListApp() {
                 </span>
               </button>
             </div>
-            
+
             <table className="border-collapse border border-gray-200 w-full mt-3">
               <thead className="bg-yellow-200">
                 <tr>
@@ -324,14 +322,13 @@ function RamadhanListApp() {
               </thead>
               <tbody>
                 {items
-                  .filter(
-                    (item) =>
-                      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+                  .filter((item) => //filter sesuai inputan, di lowercase dulu
+                    item.name.toLowerCase().includes(searchTerm.toLowerCase())
                   )
                   .filter((item) => {
-                    if (filter === "All") return true;
-                    if (filter === "Done") return item.completed;
-                    if (filter === "Todo") return !item.completed;
+                    if (filter === "All") return true; //ditampilkan semua
+                    if (filter === "Done") return item.completed; //tampilkan yang selesai
+                    if (filter === "Todo") return !item.completed; //tampilkan yang belum selesai
                     return true;
                   })
                   .map((item, index) => (
@@ -384,13 +381,6 @@ function RamadhanListApp() {
                             <button
                               className="bg-green-500 hover:bg-green-600 p-2 rounded-lg text-white mr-2"
                               onClick={() => {
-                                if (
-                                  editedName.trim() === "" ||
-                                  editedTime.trim() === ""
-                                ) {
-                                  alert("Nama atau waktu tidak boleh kosong!");
-                                  return;
-                                }
                                 editItem(index, {
                                   ...item,
                                   name: editedName,
@@ -407,12 +397,12 @@ function RamadhanListApp() {
                               className="bg-red-500 hover:bg-red-600 p-2 rounded-lg text-white"
                               onClick={() => {
                                 setEditIndex(null);
-                                setEditedName("");
+                                setEditedName(""); //nilai yang diubah akan sama seperti default
                                 setEditedTime("");
                               }}
                             >
-                              Batal{" "}
-                            </button>{" "}
+                              Batal
+                            </button>
                           </>
                         ) : (
                           <>

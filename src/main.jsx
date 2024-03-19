@@ -5,10 +5,11 @@ import RamadhanListApp from "./RamadhanApp.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Home.jsx";
 
+//mengisiasi object router 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home/>,
+    path: "/", //menentukan url
+    element: <Home/>, //komponen yang akan ditampilkan
   },
   {
     path: "/ritual-app",

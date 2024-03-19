@@ -12,7 +12,7 @@ function RamadhanListApp() {
   const [currentWaktu, setCurrentWaktu] = useState(new Date()); //waktu saat ini (real-time)
   const [filter, setFilter] = useState("All"); //untuk button search
 
-  //UseEffect untuk waktu real-time
+  //UseEffect untuk waktu real-time (sekali jalan saat apk dirender)
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentWaktu(new Date()); // Memperbarui nilai dari state currentWaktu dengan waktu new Date()--> waktu saat ini
@@ -80,6 +80,14 @@ function RamadhanListApp() {
 
   // Fungsi untuk mengedit item pada indeks tertentu dalam array items
   const editItem = (index, updatedItem) => {
+    if (
+      updatedItem.name === items[index].name &&
+      updatedItem.time === items[index].time
+    ) {
+      // Jika tidak ada perubahan, tidak perlu memperbarui item
+      setEditIndex(null);
+      return;
+    }
     const updatedItems = [...items];
     // Memeriksa apakah ada item lain dengan waktu yang sama seperti updatedItem
     const editedTimeExists = items.some(
@@ -329,7 +337,7 @@ function RamadhanListApp() {
                     if (filter === "All") return true; //ditampilkan semua
                     if (filter === "Done") return item.completed; //tampilkan yang selesai
                     if (filter === "Todo") return !item.completed; //tampilkan yang belum selesai
-                    return true;
+                    return true;//digunakan untuk memasukkan item tersebut ke dalam array hasil filter
                   })
                   .map((item, index) => (
                     <tr key={item.id} className="bg-white">

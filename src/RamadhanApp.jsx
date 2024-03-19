@@ -91,7 +91,8 @@ function RamadhanListApp() {
     const updatedItems = [...items];
     // Memeriksa apakah ada item lain dengan waktu yang sama seperti updatedItem
     const editedTimeExists = items.some(
-      (item) =>
+      (item, i) =>
+        i !== index &&
         item.time === updatedItem.time
     );
     // jika true tampilkan alert
